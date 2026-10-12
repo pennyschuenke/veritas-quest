@@ -1,0 +1,2996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Veritas Code-Lingo: C++ Arduino Quest</title>
+  <style>
+    :root {
+      --bg-main: #0a0d16;
+      --bg-card: #141824;
+      --bg-card-inner: #0d111c;
+      --border-color: #273046;
+      --border-glow: #f59e0b;
+      --gold: #f59e0b;
+      --gold-light: #fbbf24;
+      --teal: #14b8a6;
+      --teal-light: #2dd4bf;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --indigo: #6366f1;
+      --purple: #a855f7;
+      --purple-light: #c084fc;
+      --text-white: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-white);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 18px; /* Large legible base for mobile */
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+    }
+
+    @media (min-width: 1024px) {
+      body {
+        font-size: 22px; /* Comfortable scaling on monitors */
+      }
+    }
+
+    .font-code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* HEADER & HUD */
+    header {
+      background: #101423;
+      border-bottom: 2px solid var(--border-color);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+    }
+    .header-inner {
+      max-width: 920px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 3px 12px rgba(245, 158, 11, 0.45);
+    }
+    .brand-title {
+      font-weight: 900;
+      font-size: 1.15rem;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+    .brand-badge {
+      font-size: 0.75rem;
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--gold-light);
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-weight: 800;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .hud-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #080a13;
+      padding: 8px 14px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+    .hud-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+    .hud-item:active { transform: scale(0.92); }
+    .hud-hearts { color: var(--rose); }
+    .hud-gears { color: var(--teal-light); }
+    .hud-bits { color: var(--gold-light); }
+    .hud-prayer { color: var(--purple-light); }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-nav {
+      background: #1c2235;
+      border: 1.5px solid #2e3852;
+      color: var(--text-white);
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.12s ease;
+    }
+    .btn-nav:active { transform: scale(0.95); }
+    .btn-mode-toggle {
+      background: linear-gradient(135deg, #7e22ce, #9333ea);
+      border: 1.5px solid #c084fc;
+      color: white;
+      box-shadow: 0 2px 10px rgba(168, 85, 247, 0.4);
+    }
+
+    /* BANNER & UNITS */
+    .banner-card {
+      background: linear-gradient(135deg, #131726, #1c2338);
+      border: 2px solid var(--border-color);
+      border-radius: 22px;
+      padding: 20px 22px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .banner-tag {
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: rgba(245, 158, 11, 0.15);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .banner-title {
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .banner-text {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+    }
+
+    .unit-section {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 22px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .unit-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid var(--border-color);
+      padding-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .unit-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .unit-icon { font-size: 2rem; }
+    .unit-label {
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .unit-name {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: white;
+    }
+    .unit-mascot-pill {
+      font-size: 0.8rem;
+      background: #0a0d16;
+      color: var(--teal-light);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      font-weight: 800;
+    }
+
+    .stepping-stones {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      padding: 10px 0;
+    }
+    .stone-btn {
+      width: 92px;
+      height: 92px;
+      border-radius: 22px;
+      background: #1b2135;
+      border: 2.5px solid #313c5a;
+      color: var(--text-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+      transition: all 0.14s ease;
+    }
+    .stone-btn:active { transform: scale(0.93); }
+    .stone-btn.completed {
+      background: #059669;
+      border-color: #34d399;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+    }
+    .stone-icon { font-size: 1.9rem; }
+    .stone-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      max-width: 82px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    /* THE DUNGEON BOSS TRIAL CARD AT END OF UNIT */
+    .dungeon-trial-box {
+      background: linear-gradient(135deg, #181129, #28173d);
+      border: 2.5px solid #a855f7;
+      border-radius: 18px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.25);
+    }
+    .trial-info-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .trial-icon-big {
+      font-size: 2.4rem;
+    }
+    .trial-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #ffffff;
+    }
+    .trial-desc {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+    .btn-enter-trial {
+      background: linear-gradient(135deg, #a855f7, #9333ea);
+      color: #ffffff;
+      border: 2px solid #e9d5ff;
+      font-weight: 900;
+      font-size: 0.95rem;
+      padding: 12px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.45);
+      transition: all 0.12s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-enter-trial:active { transform: scale(0.95); }
+    .btn-enter-trial.completed {
+      background: linear-gradient(135deg, #059669, #0d9488);
+      border-color: #6ee7b7;
+    }
+
+    /* 3D FLASHCARD & LESSON ARENA */
+    .arena-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 24px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 480px;
+      justify-content: space-between;
+    }
+    .arena-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .progress-bar-bg {
+      flex: 1;
+      height: 12px;
+      background: #0a0d16;
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--emerald));
+      width: 20%;
+      transition: width 0.3s ease;
+    }
+    .mascot-banner {
+      background: #080a13;
+      border: 1.5px solid var(--border-color);
+      padding: 12px 16px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .mascot-banner-name {
+      font-weight: 900;
+      color: var(--gold);
+      font-size: 1rem;
+    }
+    .mascot-banner-verse {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .flashcard-3d-scene {
+      perspective: 1000px;
+      width: 100%;
+      min-height: 250px;
+      margin: auto 0;
+      cursor: pointer;
+    }
+    .flashcard-3d-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 250px;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flashcard-3d-inner.flipped { transform: rotateY(180deg); }
+    .flashcard-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .flashcard-front {
+      background: linear-gradient(145deg, #0e1220, #192036);
+      border: 2.5px solid var(--teal);
+    }
+    .flashcard-back {
+      background: linear-gradient(145deg, #1b1626, #2d1e3d);
+      border: 2.5px solid var(--gold);
+      transform: rotateY(180deg);
+    }
+    .flash-hint-pill {
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(245, 158, 11, 0.15);
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    .flash-term-main {
+      font-size: 1.85rem;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.25;
+    }
+    .flash-code-highlight {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--teal-light);
+      background: #080a13;
+      padding: 8px 18px;
+      border-radius: 14px;
+      border: 2px dashed var(--teal);
+    }
+    .flash-desc-text {
+      font-size: 1rem;
+      color: #cbd5e1;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    .sequencer-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: auto 0;
+    }
+    .sequencer-row {
+      background: var(--bg-card-inner);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sequencer-row:active { transform: scale(0.98); }
+    .sequencer-row.selected {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--gold);
+    }
+    .sequencer-index {
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: var(--gold-light);
+      width: 32px;
+      height: 32px;
+      background: #060810;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sequencer-code {
+      flex: 1;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--teal-light);
+      word-break: break-word;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: auto 0;
+    }
+    .quiz-btn {
+      background: var(--bg-card-inner);
+      border: 2px solid var(--border-color);
+      color: var(--text-white);
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.12s ease;
+    }
+    .quiz-btn:active { transform: scale(0.98); }
+    .quiz-btn.selected {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+    .quiz-btn.correct {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: var(--emerald) !important;
+      color: #6ee7b7 !important;
+    }
+    .quiz-btn.wrong {
+      background: rgba(244, 63, 94, 0.25) !important;
+      border-color: var(--rose) !important;
+      color: #fda4af !important;
+    }
+
+    .arena-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-top: 1.5px solid var(--border-color);
+      padding-top: 16px;
+    }
+    .feedback-text {
+      font-size: 0.95rem;
+      font-weight: 800;
+      flex: 1;
+    }
+    .btn-action {
+      background: var(--gold);
+      color: #080a12;
+      border: none;
+      font-weight: 900;
+      font-size: 1.05rem;
+      padding: 14px 30px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45);
+    }
+    .btn-action:active { transform: scale(0.95); }
+
+    /* VOXEL CANVAS & KINGDOM ADVENTURE */
+    .mc-box {
+      background: #141826;
+      border: 3px solid #353f5b;
+      box-shadow: inset -3px -3px 0px #090b12, inset 3px 3px 0px #505e88;
+      border-radius: 22px;
+      padding: 18px;
+    }
+    .mc-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      background: #080a13;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid #252e46;
+    }
+    canvas#adventureCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .mc-toast {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #181206;
+      border: 2px solid var(--gold);
+      padding: 10px 18px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 20;
+      transition: all 0.3s ease;
+      opacity: 0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+      max-width: 90%;
+    }
+    .mc-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* MODAL OVERLAYS */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(4, 6, 12, 0.88);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+    .modal-card {
+      background: #131726;
+      border: 2px solid var(--border-color);
+      border-radius: 22px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 45px rgba(0, 0, 0, 0.85);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+    .modal-title {
+      font-weight: 900;
+      font-size: 1.25rem;
+      color: white;
+    }
+    .btn-close {
+      background: #1c2235;
+      border: none;
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .completion-overlay {
+      background: linear-gradient(145deg, #10162a, #1b2138);
+      border: 2px solid var(--gold);
+      box-shadow: 0 12px 35px rgba(245, 158, 11, 0.25);
+      border-radius: 22px;
+      padding: 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .reward-pill-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .reward-pill {
+      background: #080a13;
+      border: 1.5px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+    .btn-next-step {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: 2px solid #34d399;
+      font-weight: 900;
+      font-size: 1.05rem;
+      padding: 12px 24px;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-home-path {
+      background: #1e263d;
+      color: #cbd5e1;
+      border: 1.5px solid #334155;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 12px 20px;
+      border-radius: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="brand-box">
+        <div class="brand-icon">✝️</div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="brand-title">VERITAS CODE</span>
+            <span class="brand-badge font-code">CODE-LINGO</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Proverbs 24:3 • C++ Arduino Quest</div>
+        </div>
+      </div>
+
+      <div class="hud-bar font-code">
+        <div class="hud-item hud-hearts" id="hudHeartsBtn" title="Hearts (Tap to Pray & Restore)"><span>❤️</span><span id="statHearts">5</span></div>
+        <div class="hud-item hud-gears" title="Gears of Wisdom"><span>⚙️</span><span id="statGears">0</span></div>
+        <div class="hud-item hud-bits" title="Golden Bits"><span>🪙</span><span id="statBits">0</span></div>
+        <div class="hud-item hud-prayer" id="hudPrayerBtn" title="Prayer Tokens (Tap to Restore Hearts)"><span>🕊️</span><span id="statPrayer">3</span></div>
+      </div>
+
+      <div class="nav-actions">
+        <button id="headerUserBtn" class="btn-nav font-code" title="Switch Craftsman Profile">
+          <span>👥</span><span id="headerUserText" style="max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">YOU</span>
+        </button>
+        <button id="modeToggleBtn" class="btn-nav btn-mode-toggle" title="Switch to Kingdom Adventure">
+          <span id="modeToggleIcon">🎮</span><span id="modeToggleText">Adventure</span>
+        </button>
+        <button id="decoderBtn" class="btn-nav" title="C++ Decoder Ring">📖</button>
+        <button id="leaderboardBtn" class="btn-nav" title="Leaderboard">🏆</button>
+      </div>
+    </div>
+  </header>
+  <main class="app-container">
+
+    <!-- VIEW 1: CODE-LINGO ROADMAP -->
+    <section id="pathView">
+      <div class="banner-card">
+        <span class="banner-tag font-code">THE GUILD OF BEZALEL (EXODUS 31:3)</span>
+        <h2 class="banner-title">Master C++ Code from the Ground Up</h2>
+        <p class="banner-text">
+          Study 3D flip cards, assemble code in the right order, and defeat the <b>🏰 Dungeon Boss Trial</b> at the end of each unit to unlock the next level!
+        </p>
+      </div>
+
+      <!-- ROADMAP UNITS & DUNGEON TRIALS INSERTED HERE -->
+      <div id="pathTreeContainer" style="display: flex; flex-direction: column; gap: 18px; margin-top: 16px;">
+      </div>
+    </section>
+
+    <!-- VIEW 2: INTERACTIVE LESSON ARENA -->
+    <section id="lessonView" class="hidden">
+      <div class="arena-card">
+        <div class="arena-header">
+          <button id="exitLessonBtn" class="btn-nav">✕ Path</button>
+          <div class="progress-bar-bg">
+            <div id="lessonProgressBar" class="progress-bar-fill"></div>
+          </div>
+          <div class="hud-item hud-hearts font-code" style="font-weight: 800; font-size: 1.05rem;">
+            <span>❤️</span><span id="lessonHeartCount">5</span>
+          </div>
+        </div>
+
+        <div class="mascot-banner">
+          <span id="lessonMascotIcon" style="font-size: 2.2rem;">🤖✝️</span>
+          <div>
+            <div id="lessonMascotName" class="mascot-banner-name">GIDEON-BOT</div>
+            <div id="lessonMascotVerse" class="mascot-banner-verse">"The Lord is with you, mighty warrior!" — Judges 6:12</div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC LESSON CONTENT (3D FLIP CARD, QUIZ, OR SEQUENCER) -->
+        <div id="lessonContent"></div>
+
+        <div class="arena-footer" id="arenaFooter">
+          <div id="lessonFeedbackText" class="feedback-text"></div>
+          <button id="lessonActionBtn" class="btn-action">CHECK</button>
+        </div>
+
+        <div id="lessonCompleteCard" class="completion-overlay hidden">
+          <div style="font-size: 2.8rem;">🎉🕊️</div>
+          <div>
+            <h3 style="font-size: 1.45rem; font-weight: 900; color: #ffffff;" id="completeTitle">LESSON COMPLETED!</h3>
+            <p style="font-size: 0.9rem; color: #94a3b8; margin-top: 4px;" id="completeVerse">"Whatever you do, work at it with all your heart" — Col 3:23</p>
+          </div>
+          <div class="reward-pill-row font-code">
+            <div class="reward-pill" style="color: var(--teal-light);" id="rewardGears">+25 ⚙️ Gears</div>
+            <div class="reward-pill" style="color: var(--gold-light);" id="rewardBits">+10 🪙 Bits</div>
+            <div class="reward-pill" style="color: var(--purple-light);">+1 🕊️ Prayer Token</div>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--emerald); font-weight: 800;">✓ Progress saved automatically!</div>
+          <div style="display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; margin-top: 6px;">
+            <button id="btnContinueNext" class="btn-next-step">
+              <span>CONTINUE TO NEXT LEVEL</span> <span>➔</span>
+            </button>
+            <button id="btnReturnPath" class="btn-home-path">
+              <span>🗺️ RETURN TO PATH</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 3: MINECRAFT-STYLE KINGDOM ADVENTURE -->
+    <section id="adventureView" class="hidden" style="display: flex; flex-direction: column; gap: 16px;">
+      
+      <div class="banner-card" style="background: linear-gradient(135deg, #181329, #28193d); border-color: #a855f7;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <span class="banner-tag font-code" id="advWorldTag" style="color: #c084fc; background: rgba(192, 132, 252, 0.15); border-color: rgba(192, 132, 252, 0.4);">
+              ⚔️ KINGDOM ADVENTURE • DUNGEON TEST
+            </span>
+            <h2 class="banner-title" id="advWorldTitle">The Iron Drawbridge (Stage 1/10)</h2>
+            <p class="banner-text" id="advWorldDesc">Solve code dilemmas to collect the Shield, ignite torches, and enter the radiant doorway!</p>
+          </div>
+          <button id="advBackToPathBtn" class="btn-nav" style="background: #2e1e4a; border-color: #a855f7; color: #f3e8ff;">
+            🗺️ Return to Path
+          </button>
+        </div>
+
+        <!-- Inventory Badges -->
+        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;" class="font-code">
+          <div id="objShield" class="reward-pill" style="font-size: 0.8rem; border-color: #334155; color: #64748b;">🛡️ Shield (Stage 3)</div>
+          <div id="objTorch" class="reward-pill" style="font-size: 0.8rem; border-color: #334155; color: #64748b;">🔥 Torch (Stage 6)</div>
+          <div id="objDoor" class="reward-pill" style="font-size: 0.8rem; border-color: #334155; color: #64748b;">🚪 Portal (Stage 10)</div>
+        </div>
+
+        <!-- Hero Picker -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+          <span style="font-size: 0.85rem; font-weight: 800; color: #c084fc;" class="font-code">HERO:</span>
+          <button class="hero-pick-btn btn-nav" data-hero="gideon" style="background: var(--gold); color: #080a12; font-weight: 900;">
+            🤖 GIDEON
+          </button>
+          <button class="hero-pick-btn btn-nav" data-hero="deborah" style="font-weight: 900;">
+            ⚖️ DEBORAH
+          </button>
+          <button class="hero-pick-btn btn-nav" data-hero="david" style="font-weight: 900;">
+            👑 DAVID
+          </button>
+        </div>
+      </div>
+
+      <!-- Voxel Canvas Stage -->
+      <div class="mc-canvas-wrap">
+        <canvas id="adventureCanvas" width="600" height="260"></canvas>
+        <div id="advToast" class="mc-toast">
+          <span style="font-size: 1.6rem;">🏆</span>
+          <div>
+            <div style="font-size: 0.75rem; color: var(--gold); font-weight: 900;" class="font-code">ACHIEVEMENT UNLOCKED!</div>
+            <div id="advToastTitle" style="font-size: 0.95rem; font-weight: 900; color: white;">Redstone of Truth</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quest Terminal Box -->
+      <div id="advTerminal" class="mc-box" style="display: flex; flex-direction: column; gap: 14px;">
+      </div>
+
+    </section>
+
+  </main>
+  <!-- MODAL: PRAYER & HEART RESTORATION -->
+  <div id="prayerModal" class="modal-overlay hidden">
+    <div class="modal-card" style="text-align: center; border-color: #a855f7;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #c084fc;">🕊️ Altar of Prayer & Rewards</h3>
+        <button id="closePrayerBtn" class="btn-close">✕</button>
+      </div>
+      <div style="font-size: 2.6rem; margin: 4px 0;">🙏✨</div>
+      <p style="font-size: 0.95rem; color: #e2e8f0; line-height: 1.5;">
+        <i>"Those who hope in the Lord will renew their strength. They will soar on wings like eagles."</i><br>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">— Isaiah 40:31</span>
+      </p>
+
+      <div style="background: var(--bg-card-inner); padding: 12px; border-radius: 16px; border: 1.5px solid var(--border-color); display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-weight: 800; font-size: 0.85rem;" class="font-code">
+        <div>❤️ <span style="color: var(--rose);" id="modalCurrentHearts">5</span>/5</div>
+        <div>🕊️ <span style="color: var(--purple-light);" id="modalCurrentPrayer">3</span></div>
+        <div>⚙️ <span style="color: var(--teal-light);" id="modalCurrentGears">0</span></div>
+        <div>🪙 <span style="color: var(--gold-light);" id="modalCurrentBits">0</span></div>
+      </div>
+
+      <div id="prayerFeedback" style="font-size: 0.85rem; font-weight: 800; min-height: 22px;"></div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+        <button id="redeemPrayerBtn" class="btn-action" style="background: linear-gradient(135deg, #9333ea, #7e22ce); color: white; border: 1.5px solid #c084fc; font-size: 0.95rem; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+          <span>🕊️ PRAY FOR FULL RENEWAL</span>
+          <span class="font-code" style="font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 8px;">1 🕊️ ➔ FULL (5 ❤️)</span>
+        </button>
+
+        <button id="tradeGearsBtn" class="btn-action" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: 1.5px solid #2dd4bf; font-size: 0.95rem; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+          <span>⚙️ TRADE GEARS OF WISDOM</span>
+          <span class="font-code" style="font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 8px;">40 ⚙️ ➔ +2 ❤️</span>
+        </button>
+
+        <button id="tradeBitsBtn" class="btn-action" style="background: linear-gradient(135deg, #d97706, #b45309); color: white; border: 1.5px solid #fbbf24; font-size: 0.95rem; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+          <span>🪙 TRADE GOLDEN BITS</span>
+          <span class="font-code" style="font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 8px;">20 🪙 ➔ +1 ❤️</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROFILE SWITCHER -->
+  <div id="profileModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">👥 Who Is Coding?</h3>
+        <button id="closeProfileBtn" class="btn-close">✕</button>
+      </div>
+
+      <div style="background: var(--bg-card-inner); padding: 14px; border-radius: 16px; border: 1.5px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 800;" class="font-code">ACTIVE CRAFTSMAN: <span id="activeNameLabel" style="color: var(--gold);">YOU</span></div>
+        <div style="display: flex; gap: 8px;">
+          <input id="renameInput" type="text" maxlength="10" placeholder="NEW NAME" style="flex: 1; background: #1b2135; border: 1.5px solid var(--border-color); color: white; border-radius: 10px; padding: 8px 12px; font-weight: 800; font-size: 0.95rem; text-transform: uppercase;">
+          <button id="saveRenameBtn" class="btn-nav" style="background: var(--gold); color: black;">RENAME</button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 800;" class="font-code">CREATE NEW PROFILE (MAX 10 LETTERS):</label>
+        <div style="display: flex; gap: 8px;">
+          <input id="newProfileInput" type="text" maxlength="10" placeholder="NAME" style="flex: 1; background: var(--bg-card-inner); border: 1.5px solid var(--border-color); color: white; border-radius: 10px; padding: 8px 12px; font-weight: 800; font-size: 0.95rem; text-transform: uppercase;">
+          <button id="createProfileBtn" class="btn-nav" style="background: var(--teal); color: black;">CREATE</button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 800;" class="font-code">SAVED PROFILES ON THIS DEVICE:</label>
+        <div id="profileList" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DECODER RING -->
+  <div id="decoderModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📖 C++ Decoder Ring</h3>
+        <button id="closeDecoderBtn" class="btn-close">✕</button>
+      </div>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">In C++, words are abbreviated into compact computer commands:</p>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
+        <div style="background: var(--bg-card-inner); padding: 10px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid var(--border-color);">
+          <div><b>Integer</b> <span style="font-size: 0.8rem; color: var(--text-muted);">(Whole numbers: 160)</span></div>
+          <span class="font-code" style="color: var(--teal-light); font-weight: 900; font-size: 1.15rem;">int</span>
+        </div>
+        <div style="background: var(--bg-card-inner); padding: 10px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid var(--border-color);">
+          <div><b>Floating-Point</b> <span style="font-size: 0.8rem; color: var(--text-muted);">(Decimals: 18.75)</span></div>
+          <span class="font-code" style="color: var(--teal-light); font-weight: 900; font-size: 1.15rem;">float</span>
+        </div>
+        <div style="background: var(--bg-card-inner); padding: 10px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid var(--border-color);">
+          <div><b>Boolean</b> <span style="font-size: 0.8rem; color: var(--text-muted);">(true / false)</span></div>
+          <span class="font-code" style="color: var(--teal-light); font-weight: 900; font-size: 1.15rem;">bool</span>
+        </div>
+        <div style="background: var(--bg-card-inner); padding: 10px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid var(--border-color);">
+          <div><b>Constant</b> <span style="font-size: 0.8rem; color: var(--text-muted);">(Locked pin number)</span></div>
+          <span class="font-code" style="color: var(--teal-light); font-weight: 900; font-size: 1.15rem;">const</span>
+        </div>
+        <div style="background: var(--bg-card-inner); padding: 10px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid var(--border-color);">
+          <div><b>Void Function</b> <span style="font-size: 0.8rem; color: var(--text-muted);">(Action with no math return)</span></div>
+          <span class="font-code" style="color: var(--teal-light); font-weight: 900; font-size: 1.15rem;">void</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LEADERBOARD -->
+  <div id="leaderboardModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🏆 Letter Board of Wisdom</h3>
+        <button id="closeLeaderboardBtn" class="btn-close">✕</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">"Do you see someone skilled in their work? They will serve before kings." — Prov 22:29</p>
+      <div style="background: var(--bg-card-inner); border-radius: 14px; border: 1.5px solid var(--border-color); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" class="font-code">
+          <thead>
+            <tr style="background: #181f33; color: var(--text-muted); text-align: left;">
+              <th style="padding: 10px 12px;">#</th>
+              <th style="padding: 10px 12px;">NAME</th>
+              <th style="padding: 10px 12px; text-align: right;">GEARS</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script>
+    const SafeStorage = {
+      mem: {},
+      get(k) {
+        try { return localStorage.getItem(k); } catch(e) { return this.mem[k] || null; }
+      },
+      set(k, v) {
+        try { localStorage.setItem(k, v); } catch(e) { this.mem[k] = v; }
+      }
+    };
+
+    class AudioEngine {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playCorrect() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.frequency.setValueAtTime(f, now + i * 0.08);
+            gain.gain.setValueAtTime(0.12, now + i * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.22);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.08);
+            osc.stop(now + i * 0.08 + 0.22);
+          });
+        } catch(e) {}
+      }
+      playWrong() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(170, now);
+          osc.frequency.linearRampToValueAtTime(90, now + 0.22);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        } catch(e) {}
+      }
+      playFlip() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.frequency.setValueAtTime(650, now);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.07);
+        } catch(e) {}
+      }
+    }
+    const audio = new AudioEngine();
+
+    /* CURRICULUM WITH 3D FLASHCARDS, QUIZZES & ORDER SEQUENCERS */
+    const CURRICULUM = [
+      {
+        id: "u1",
+        title: "UNIT 1: THE FOUNDATION FORGE",
+        subtitle: "Variables & Microchip Memory",
+        mascot: { name: "GIDEON-BOT", icon: "🤖✝️", verse: "Judges 6:12 — The Lord is with you, mighty warrior!" },
+        lessons: [
+          {
+            id: "u1_l1",
+            title: "Variables",
+            icon: "📦",
+            type: "flashcard",
+            card: {
+              frontTitle: "Full English Concept",
+              frontKeyword: "What is a Variable?",
+              frontDesc: "Tap to flip and reveal how the robot brain remembers numbers!",
+              backKeyword: "A Named Box in RAM Memory",
+              backCode: "int distance = 20;",
+              backDesc: "A labeled container in microchip memory that stores sensor distances and wheel speeds."
+            }
+          },
+          {
+            id: "u1_l2",
+            title: "Integer Card",
+            icon: "🔢",
+            type: "flashcard",
+            card: {
+              frontTitle: "Whole Numbers Only",
+              frontKeyword: "Integer (int)",
+              frontDesc: "How do microchips count whole items like motor speeds? Tap to flip!",
+              backKeyword: "Whole Number Storage (int)",
+              backCode: "int wheelSpeed = 160;",
+              backDesc: "Short for 'integer'. Stores whole numbers without decimals (e.g., 0, 160, -25). Psalm 147:4."
+            }
+          },
+          {
+            id: "u1_l3",
+            title: "Integer (int)",
+            icon: "⚙️",
+            type: "order",
+            order: {
+              prompt: "Put the code in the right order to declare an integer variable with speed 160:",
+              correctOrder: ["int wheelSpeed", "=", "160", ";"]
+            }
+          },
+          {
+            id: "u1_l4",
+            title: "Float Card",
+            icon: "📏",
+            type: "flashcard",
+            card: {
+              frontTitle: "Fractional Precision",
+              frontKeyword: "Floating-Point (float)",
+              frontDesc: "What happens when sonar measures a precise distance like 18.75 cm? Tap to flip!",
+              backKeyword: "Decimal Number Storage (float)",
+              backCode: "float obstacleDist = 18.75;",
+              backDesc: "Stores fractional decimal numbers. Proverbs 16:11."
+            }
+          },
+          {
+            id: "u1_l5",
+            title: "Decimals (float)",
+            icon: "🎯",
+            type: "quiz",
+            quiz: {
+              prompt: "Which data type stores fractional measurements with decimal points like 18.75 cm?",
+              options: [
+                { text: "float (Floating-Point)", correct: true },
+                { text: "int (Integer)", correct: false },
+                { text: "void (Nothing)", correct: false }
+              ],
+              explanation: "Fractions and decimal numbers use 'float' (Floating-Point)."
+            }
+          },
+          {
+            id: "u1_l6",
+            title: "Truth Card",
+            icon: "💡",
+            type: "flashcard",
+            card: {
+              frontTitle: "Digital Truth Gate",
+              frontKeyword: "Boolean (bool)",
+              frontDesc: "Can a digital light switch be half on? Tap to flip!",
+              backKeyword: "True or False Only (bool)",
+              backCode: "bool pathClear = true;",
+              backDesc: "Booleans hold exact binary truth states: true (1) or false (0). Matthew 5:37."
+            }
+          },
+          {
+            id: "u1_l7",
+            title: "Truth (bool)",
+            icon: "⚖️",
+            type: "quiz",
+            quiz: {
+              prompt: "Which data type holds only two possible states: true (1) or false (0)?",
+              options: [
+                { text: "bool (Boolean)", correct: true },
+                { text: "int (Integer)", correct: false },
+                { text: "float (Floating-Point)", correct: false }
+              ],
+              explanation: "Boolean (bool) variables hold strictly binary truth: true or false."
+            }
+          },
+          {
+            id: "u1_l8",
+            title: "Const Card",
+            icon: "🔒",
+            type: "flashcard",
+            card: {
+              frontTitle: "Permanent Lock",
+              frontKeyword: "Constant (const)",
+              frontDesc: "Why lock a pin number so code can NEVER change it? Tap to flip!",
+              backKeyword: "Immutable Pin Lock (const)",
+              backCode: "const int TRIG_PIN = A1;",
+              backDesc: "Locks a variable permanently in read-only memory. Prevents buggy code from reassigning pins! Psalm 62:2."
+            }
+          },
+          {
+            id: "u1_l9",
+            title: "Constants",
+            icon: "🛡️",
+            type: "order",
+            order: {
+              prompt: "Put the code in the right order to lock Pin 10 permanently in memory:",
+              correctOrder: ["const int", "ALARM_PIN", "=", "10;"]
+            }
+          }
+        ]
+      },
+      {
+        id: "u2",
+        title: "UNIT 2: THE LOGIC CITADEL",
+        subtitle: "Decisions, If/Else & Gates",
+        mascot: { name: "DEBORAH-AI", icon: "⚖️🤖", verse: "Judges 4:4 — Wisdom and discernment in judgment." },
+        lessons: [
+          {
+            id: "u2_l1",
+            title: "Semicolon Card",
+            icon: "📜",
+            type: "flashcard",
+            card: {
+              frontTitle: "The Punctuation Law",
+              frontKeyword: "The Semicolon (;)",
+              frontDesc: "Why does leaving off a tiny semicolon crash your sketch? Tap to flip!",
+              backKeyword: "Sentence Terminator (;)",
+              backCode: "int speed = 160;",
+              backDesc: "Tells the compiler: 'This command is complete, execute it!' 1 Cor 14:40."
+            }
+          },
+          {
+            id: "u2_l2",
+            title: "Equal vs Set",
+            icon: "🎯",
+            type: "flashcard",
+            card: {
+              frontTitle: "Comparison vs Assignment",
+              frontKeyword: "== vs =",
+              frontDesc: "Are they the same? Tap to flip the card!",
+              backKeyword: "== tests equality; = stores a value!",
+              backCode: "if (sensor == 0)",
+              backDesc: "Double equals '==' tests if two values match without changing them. Single '=' assigns a value."
+            }
+          },
+          {
+            id: "u2_l3",
+            title: "If Statement",
+            icon: "🛑",
+            type: "order",
+            order: {
+              prompt: "Put the code in the right order to brake when an obstacle is closer than 20 cm:",
+              correctOrder: ["if (frontDist < 20)", "{", "  stopMotors();", "}"]
+            }
+          },
+          {
+            id: "u2_l4",
+            title: "If / Else",
+            icon: "⚖️",
+            type: "order",
+            order: {
+              prompt: "Put the code in the right order to choose Left if clearance is greater, otherwise Right:",
+              correctOrder: ["if (leftDist > rightDist) {", "  turnLeft();", "} else {", "  turnRight();", "}"]
+            }
+          },
+          {
+            id: "u2_l5",
+            title: "Both True (&&)",
+            icon: "🛡️",
+            type: "quiz",
+            quiz: {
+              prompt: "Which symbol means AND (both condition 1 AND condition 2 must be true)?",
+              options: [
+                { text: "&& (Logical AND)", correct: true },
+                { text: "|| (Logical OR)", correct: false },
+                { text: "++ (Increment)", correct: false }
+              ],
+              explanation: "'&&' ensures both safety requirements are satisfied simultaneously."
+            }
+          }
+        ]
+      },
+      {
+        id: "u3",
+        title: "UNIT 3: THE HARDWARE SANCTUM",
+        subtitle: "Arduino Core Pin Controls",
+        mascot: { name: "BEZALEL-BOT", icon: "🛠️🕊️", verse: "Exodus 31:3 — Skill and knowledge in all crafts." },
+        lessons: [
+          {
+            id: "u3_l1",
+            title: "Setup & Loop",
+            icon: "🔄",
+            type: "flashcard",
+            card: {
+              frontTitle: "The Sacred Heartbeats",
+              frontKeyword: "void setup() vs void loop()",
+              frontDesc: "How does an Arduino wake up and think? Tap to flip!",
+              backKeyword: "Setup runs once; Loop runs forever!",
+              backCode: "void loop() { ... }",
+              backDesc: "setup() configures pins at startup. loop() repeats continuously until power is turned off."
+            }
+          },
+          {
+            id: "u3_l2",
+            title: "Pin Modes",
+            icon: "⚙️",
+            type: "order",
+            order: {
+              prompt: "Put the code in the right order to configure the TRIG pin to send signals OUT:",
+              correctOrder: ["pinMode(", "TRIG_PIN,", "OUTPUT", ");"]
+            }
+          },
+          {
+            id: "u3_l3",
+            title: "Digital Write",
+            icon: "💡",
+            type: "quiz",
+            quiz: {
+              prompt: "Which command delivers maximum +5 Volts electric power to a digital pin?",
+              options: [
+                { text: "digitalWrite(pin, HIGH);", correct: true },
+                { text: "digitalWrite(pin, LOW);", correct: false },
+                { text: "analogRead(pin);", correct: false }
+              ],
+              explanation: "HIGH delivers active +5V electric signal power; LOW is 0V Ground."
+            }
+          },
+          {
+            id: "u3_l4",
+            title: "Sonar Pulse",
+            icon: "📡",
+            type: "quiz",
+            quiz: {
+              prompt: "Which function listens for the ultrasonic ECHO bounce-back time in microseconds?",
+              options: [
+                { text: "pulseIn(ECHO_PIN, HIGH);", correct: true },
+                { text: "digitalRead(ECHO_PIN);", correct: false },
+                { text: "delayMicroseconds(10);", correct: false }
+              ],
+              explanation: "pulseIn() counts microseconds until sound bounces off the obstacle!"
+            }
+          }
+        ]
+      },
+      {
+        id: "u4",
+        title: "UNIT 4: THE MOTION GUILD",
+        subtitle: "Loops, Servos & Custom Functions",
+        mascot: { name: "DAVID-ROVER", icon: "👑🦾", verse: "1 Sam 17:45 — I come in the name of the Lord of hosts." },
+        lessons: [
+          {
+            id: "u4_l1",
+            title: "Counting Loop",
+            icon: "🔁",
+            type: "order",
+            order: {
+              prompt: "Put the code in the right order to repeat an action 4 times using a for loop:",
+              correctOrder: ["for (int i = 0;", "i < 4;", "i++)", "{ blinkLED(); }"]
+            }
+          },
+          {
+            id: "u4_l2",
+            title: "Motor Settle",
+            icon: "⏳",
+            type: "flashcard",
+            card: {
+              frontTitle: "Mechanical Physics Secret",
+              frontKeyword: "delay(300);",
+              frontDesc: "Why pause after moving the servo neck? Tap to flip!",
+              backKeyword: "Mechanical Gearbox Settling Window",
+              backCode: "delay(300);",
+              backDesc: "Code runs in microseconds, but plastic gears have mass! delay(300) allows the neck to stop vibrating."
+            }
+          },
+          {
+            id: "u4_l3",
+            title: "Servo Angles",
+            icon: "🎯",
+            type: "quiz",
+            quiz: {
+              prompt: "In our robot car, which angle positions the servo neck dead straight ahead?",
+              options: [
+                { text: "headServo.write(90);", correct: true },
+                { text: "headServo.write(160);", correct: false },
+                { text: "headServo.write(20);", correct: false }
+              ],
+              explanation: "90° is dead center ahead! 160° points left and 20° points right."
+            }
+          },
+          {
+            id: "u4_l4",
+            title: "Autonomous Routine",
+            icon: "🧩",
+            type: "order",
+            order: {
+              prompt: "Put the 4-step obstacle escape routine in the correct order:",
+              correctOrder: [
+                "1. Slam Brakes (0, 0)",
+                "2. Reverse -140 for 250ms for clearance",
+                "3. Look Left (160°) & Look Right (20°)",
+                "4. Pivot toward greater clearance!"
+              ]
+            }
+          },
+          {
+            id: "u4_l5",
+            title: "Custom Functions",
+            icon: "⚙️",
+            type: "order",
+            order: {
+              prompt: "Put the code in the right order to define a reusable driveForward() function:",
+              correctOrder: ["void driveForward()", "{", "  drive(160, 160);", "}"]
+            }
+          }
+        ]
+      }
+    ];
+
+    /* 4 DUNGEON BOSS LEVELS (EACH WITH 10 QUESTIONS = 40 TOTAL) */
+    const ADVENTURE_LEVELS = [
+      {
+        level: 1,
+        worldName: "LEVEL 1: VALLEY OF VARIABLES",
+        description: "Guide your hero across the drawbridge by mastering C++ variables!",
+        stages: [
+          {
+            title: "The Iron Drawbridge",
+            dialogue: "⚔️ An ancient drawbridge blocks the path! Store whole number 160 into gearCount.",
+            code: "___ gearCount = 160;",
+            options: [
+              { code: "int", label: "int (Integer)", correct: true },
+              { code: "float", label: "float (Decimal)", correct: false },
+              { code: "bool", label: "bool (True/False)", correct: false }
+            ],
+            explanation: "Whole numbers use 'int' (Integer)!",
+            achievement: "Redstone of Truth"
+          },
+          {
+            title: "The Chasm Gauge",
+            dialogue: "🌊 The boiling chasm measures exactly 18.75 meters across. Which type stores decimals?",
+            code: "___ chasmWidth = 18.75;",
+            options: [
+              { code: "float", label: "float (Decimal)", correct: true },
+              { code: "int", label: "int (Whole)", correct: false },
+              { code: "void", label: "void", correct: false }
+            ],
+            explanation: "Decimals use 'float' (Floating-Point)!",
+            achievement: "Float Navigator"
+          },
+          {
+            title: "Pedestal of the Shield",
+            dialogue: "🛡️ A glowing pedestal holds the Shield of Faith! Claim it with a truth statement:",
+            code: "___ hasFaithShield = true;",
+            options: [
+              { code: "bool", label: "bool (Boolean Truth)", correct: true },
+              { code: "int", label: "int (Integer)", correct: false },
+              { code: "float", label: "float", correct: false }
+            ],
+            explanation: "Digital truth signals use 'bool' (true / false)!",
+            achievement: "Shield of Faith Equipped"
+          },
+          {
+            title: "The King's Constant",
+            dialogue: "🔒 The alarm pin must NEVER change during runtime. Lock it with which keyword?",
+            code: "___ int ALARM_PIN = 10;",
+            options: [
+              { code: "const", label: "const (Constant)", correct: true },
+              { code: "float", label: "float", correct: false },
+              { code: "loop", label: "loop", correct: false }
+            ],
+            explanation: "'const' permanently locks a variable in memory!",
+            achievement: "Rock of Ages"
+          },
+          {
+            title: "Character Rune",
+            dialogue: "📜 An ancient letter is carved into the wall. Which type stores single characters like 'A'?",
+            code: "___ runeLetter = 'A';",
+            options: [
+              { code: "char", label: "char (Character)", correct: true },
+              { code: "int", label: "int", correct: false },
+              { code: "bool", label: "bool", correct: false }
+            ],
+            explanation: "'char' stores a single alphanumeric letter!",
+            achievement: "Rune Scribe"
+          },
+          {
+            title: "Striking the Sacred Torch",
+            dialogue: "🔥 Strike sparks of code to ignite the wall torch! How many pins does an LED have?",
+            code: "int ledPins = ___;",
+            options: [
+              { code: "2", label: "2 (Anode + & Cathode -)", correct: true },
+              { code: "10", label: "10", correct: false },
+              { code: "0", label: "0", correct: false }
+            ],
+            explanation: "LEDs have 2 pins: Positive Anode and Negative Cathode!",
+            achievement: "Torch of Wisdom Lit"
+          },
+          {
+            title: "Bridging the Lava",
+            dialogue: "🌋 Calculate the span of the stone bridge over boiling magma (10 + 5 blocks):",
+            code: "int bridgeLength = 10 ___ 5;",
+            options: [
+              { code: "+", label: "+ (Addition)", correct: true },
+              { code: "*", label: "*", correct: false },
+              { code: "==", label: "==", correct: false }
+            ],
+            explanation: "The addition operator '+' combines measurements!",
+            achievement: "Overcomer of Magma"
+          },
+          {
+            title: "The Speed Governor",
+            dialogue: "⚡ Set maximum motor PWM speed without exceeding the 8-bit limit (255):",
+            code: "int maxSpeed = ___;",
+            options: [
+              { code: "255", label: "255 (Full PWM Power)", correct: true },
+              { code: "9999", label: "9999 (Overload)", correct: false },
+              { code: "-50", label: "-50", correct: false }
+            ],
+            explanation: "Arduino PWM analogWrite tops out at 255 (8-bit power)!",
+            achievement: "Master of Current"
+          },
+          {
+            title: "The Unlocking Key",
+            dialogue: "🗝️ Verify that keyCount equals exactly 1 without overwriting it:",
+            code: "if (keyCount ___ 1)",
+            options: [
+              { code: "==", label: "== (Comparison Check)", correct: true },
+              { code: "=", label: "= (Single Assignment)", correct: false },
+              { code: "+", label: "+", correct: false }
+            ],
+            explanation: "'==' checks equality without altering stored data!",
+            achievement: "Key of David"
+          },
+          {
+            title: "The Portal of Variables",
+            dialogue: "🚪 The doorway opens! Terminate the final unlock instruction with proper punctuation:",
+            code: "unlockSanctuary()___",
+            options: [
+              { code: ";", label: "; (Semicolon)", correct: true },
+              { code: ".", label: ". (Period)", correct: false },
+              { code: ":", label: ": (Colon)", correct: false }
+            ],
+            explanation: "Every C++ command line must end with a semicolon ';'!",
+            achievement: "Conqueror of Variables"
+          }
+        ]
+      },
+      {
+        level: 2,
+        worldName: "LEVEL 2: CITADEL OF CONDITIONALS",
+        description: "Conquer if/else logic gates and navigate maze traps!",
+        stages: [
+          {
+            title: "The Lava Jump",
+            dialogue: "🌋 Magma blocks the path! Leap ONLY IF frontTile is LAVA:",
+            code: "___ (frontTile == LAVA) { jump(); }",
+            options: [
+              { code: "if", label: "if (Condition Check)", correct: true },
+              { code: "while", label: "while", correct: false },
+              { code: "const", label: "const", correct: false }
+            ],
+            explanation: "'if' statements test conditions before executing actions!",
+            achievement: "Courageous Leap"
+          },
+          {
+            title: "The Narrow Fork",
+            dialogue: "🧭 Choose left if clearance is greater, otherwise take the fallback path!",
+            code: "if (leftDist > 20) { goLeft(); } ___ { goRight(); }",
+            options: [
+              { code: "else", label: "else (Fallback)", correct: true },
+              { code: "while", label: "while", correct: false },
+              { code: "int", label: "int", correct: false }
+            ],
+            explanation: "'else' provides the fallback branch when 'if' is false!",
+            achievement: "Wise Discernment"
+          },
+          {
+            title: "Equipping Truth Shield",
+            dialogue: "🛡️ Pick up the Iron Shield if inventory has space AND power is on:",
+            code: "if (hasSpace == true ___ powerOn == true)",
+            options: [
+              { code: "&&", label: "&& (Logical AND)", correct: true },
+              { code: "||", label: "|| (Logical OR)", correct: false },
+              { code: "==", label: "==", correct: false }
+            ],
+            explanation: "'&&' requires BOTH conditions to pass simultaneously!",
+            achievement: "Shield Bearer"
+          },
+          {
+            title: "The Alternative Gate",
+            dialogue: "🔀 Check if EITHER the blue key OR the gold key is in hand:",
+            code: "if (hasBlueKey ___ hasGoldKey)",
+            options: [
+              { code: "||", label: "|| (Logical OR)", correct: true },
+              { code: "&&", label: "&& (AND)", correct: false },
+              { code: "!", label: "!", correct: false }
+            ],
+            explanation: "'||' triggers if EITHER condition is true!",
+            achievement: "Double Grace"
+          },
+          {
+            title: "Not Equal Check",
+            dialogue: "🛑 Stop if the obstacle distance is NOT equal to clear open air (999 cm):",
+            code: "if (frontDist ___ 999)",
+            options: [
+              { code: "!=", label: "!= (Not Equal To)", correct: true },
+              { code: "==", label: "== (Equal)", correct: false },
+              { code: "=", label: "=", correct: false }
+            ],
+            explanation: "'!=' checks if two values are not equal!",
+            achievement: "Watchful Eye"
+          },
+          {
+            title: "Lighting the Hearth",
+            dialogue: "🔥 Ignite the sanctuary flame if darkness is detected:",
+            code: "if (isDark == true) { lightTorch(); }",
+            options: [
+              { code: "{ }", label: "{ } (Curly Braces Grouping)", correct: true },
+              { code: "( )", label: "( )", correct: false },
+              { code: "[ ]", label: "[ ]", correct: false }
+            ],
+            explanation: "Curly braces { } bundle the code commands that run when the check passes!",
+            achievement: "Flaming Hearth"
+          },
+          {
+            title: "Greater Than Threshold",
+            dialogue: "📏 Proceed forward ONLY when obstacle distance is GREATER than 20 cm:",
+            code: "if (frontDist ___ 20)",
+            options: [
+              { code: ">", label: "> (Greater Than)", correct: true },
+              { code: "<", label: "< (Less Than)", correct: false },
+              { code: "==", label: "==", correct: false }
+            ],
+            explanation: "'>' ensures you have more than 20 cm of stopping clearance!",
+            achievement: "Safe Distance"
+          },
+          {
+            title: "Three-Way Decision",
+            dialogue: "🧭 Check if left is clear, ELSE IF right is clear, else reverse:",
+            code: "if (lClear) { left(); } ___ (rClear) { right(); }",
+            options: [
+              { code: "else if", label: "else if (Second Check)", correct: true },
+              { code: "then", label: "then", correct: false },
+              { code: "repeat", label: "repeat", correct: false }
+            ],
+            explanation: "'else if' checks a secondary condition when the first fails!",
+            achievement: "Trinity of Paths"
+          },
+          {
+            title: "The Inversion Gate",
+            dialogue: "⚡ Invert a boolean truth state (NOT blocked):",
+            code: "bool pathClear = ___isBlocked;",
+            options: [
+              { code: "!", label: "! (Logical NOT)", correct: true },
+              { code: "-", label: "-", correct: false },
+              { code: "&", label: "&", correct: false }
+            ],
+            explanation: "The exclamation point '!' flips true to false and false to true!",
+            achievement: "Truth Inverter"
+          },
+          {
+            title: "The Citadel Door",
+            dialogue: "🚪 Open the citadel doorway by confirming safety is true:",
+            code: "if (isSafe == true) { openDoor(); }",
+            options: [
+              { code: "==", label: "== (Equality Operator)", correct: true },
+              { code: "=", label: "=", correct: false },
+              { code: ":", label: ":", correct: false }
+            ],
+            explanation: "Always use '==' inside condition parentheses!",
+            achievement: "Master of Logic"
+          }
+        ]
+      },
+      {
+        level: 3,
+        worldName: "LEVEL 3: SANCTUARY OF HARDWARE",
+        description: "Master pins, signals, sonar waves, and electrical control!",
+        stages: [
+          {
+            title: "The Startup Ritual",
+            dialogue: "⚡ Which Arduino function executes exactly ONCE at startup to prepare pins?",
+            code: "void ___() { pinMode(A1, OUTPUT); }",
+            options: [
+              { code: "setup", label: "setup() (Runs Once)", correct: true },
+              { code: "loop", label: "loop() (Runs Forever)", correct: false },
+              { code: "delay", label: "delay()", correct: false }
+            ],
+            explanation: "void setup() configures hardware at power-on!",
+            achievement: "Master of Setup"
+          },
+          {
+            title: "The Perpetual Loop",
+            dialogue: "🔄 Which function loops over and over continuously while power is on?",
+            code: "void ___() { readSensors(); }",
+            options: [
+              { code: "loop", label: "loop() (Perpetual)", correct: true },
+              { code: "setup", label: "setup()", correct: false },
+              { code: "exit", label: "exit()", correct: false }
+            ],
+            explanation: "void loop() repeats continuously as the robot's heartbeat!",
+            achievement: "Eternal Heartbeat"
+          },
+          {
+            title: "Equipping Shield Pin",
+            dialogue: "🛡️ Configure the hardware pin for the shield sensor as an INPUT:",
+            code: "pinMode(SHIELD_PIN, ___);",
+            options: [
+              { code: "INPUT", label: "INPUT (Listening In)", correct: true },
+              { code: "OUTPUT", label: "OUTPUT (Sending Out)", correct: false },
+              { code: "HIGH", label: "HIGH", correct: false }
+            ],
+            explanation: "Sensors that send signals INTO the Arduino are INPUTs!",
+            achievement: "Hardware Listener"
+          },
+          {
+            title: "The Ultrasonic Chirp",
+            dialogue: "📡 Set the TRIG pin to OUTPUT so it can blast the 10 microsecond sound chirp:",
+            code: "pinMode(TRIG_PIN, ___);",
+            options: [
+              { code: "OUTPUT", label: "OUTPUT (Broadcasting)", correct: true },
+              { code: "INPUT", label: "INPUT", correct: false },
+              { code: "LOW", label: "LOW", correct: false }
+            ],
+            explanation: "Pins sending electrical signals OUT are OUTPUTs!",
+            achievement: "Sonic Transmitter"
+          },
+          {
+            title: "Powering the Beacon",
+            dialogue: "💡 Send active +5 Volts electrical power to turn on the beacon LED:",
+            code: "digitalWrite(LED_PIN, ___);",
+            options: [
+              { code: "HIGH", label: "HIGH (+5 Volts Power)", correct: true },
+              { code: "LOW", label: "LOW (0 Volts Ground)", correct: false },
+              { code: "INPUT", label: "INPUT", correct: false }
+            ],
+            explanation: "HIGH delivers active +5V electric signal power!",
+            achievement: "Light Bearer"
+          },
+          {
+            title: "Lighting the Wall Torch",
+            dialogue: "🔥 Ground the pin to 0 Volts to extinguish power:",
+            code: "digitalWrite(TORCH_PIN, ___);",
+            options: [
+              { code: "LOW", label: "LOW (0V Ground)", correct: true },
+              { code: "HIGH", label: "HIGH", correct: false },
+              { code: "OUTPUT", label: "OUTPUT", correct: false }
+            ],
+            explanation: "LOW turns the voltage down to 0V ground (OFF)!",
+            achievement: "Power Regulator"
+          },
+          {
+            title: "Echolocation Stopwatch",
+            dialogue: "🦇 Which function measures the microsecond duration of the returning echo?",
+            code: "long duration = ___(ECHO_PIN, HIGH);",
+            options: [
+              { code: "pulseIn", label: "pulseIn() (Timer)", correct: true },
+              { code: "digitalRead", label: "digitalRead()", correct: false },
+              { code: "delay", label: "delay()", correct: false }
+            ],
+            explanation: "pulseIn() measures the exact microsecond duration of the wave return!",
+            achievement: "Sonic Discernment"
+          },
+          {
+            title: "The Speed of Sound",
+            dialogue: "📏 Sound travels 1 cm every 58 microseconds round-trip. Divide duration by what?",
+            code: "long distCm = duration / ___;",
+            options: [
+              { code: "58", label: "58 (Microseconds per cm)", correct: true },
+              { code: "1000", label: "1000", correct: false },
+              { code: "2", label: "2", correct: false }
+            ],
+            explanation: "Dividing echo microseconds by 58 gives exact distance in centimeters!",
+            achievement: "Speed of Sound Master"
+          },
+          {
+            title: "Serial Communication",
+            dialogue: "💻 Open serial communications with the computer at standard 9600 baud rate:",
+            code: "Serial.begin(___);",
+            options: [
+              { code: "9600", label: "9600 (Baud Rate)", correct: true },
+              { code: "50", label: "50", correct: false },
+              { code: "1", label: "1", correct: false }
+            ],
+            explanation: "9600 baud is the standard communication speed for Arduino UNO!",
+            achievement: "Voice of the Microchip"
+          },
+          {
+            title: "The Sanctuary Gate",
+            dialogue: "🚪 Read the digital state of the entry switch pin:",
+            code: "int gateState = ___(GATE_PIN);",
+            options: [
+              { code: "digitalRead", label: "digitalRead() (Read 0 or 1)", correct: true },
+              { code: "digitalWrite", label: "digitalWrite()", correct: false },
+              { code: "pinMode", label: "pinMode()", correct: false }
+            ],
+            explanation: "digitalRead() checks whether a digital pin is receiving HIGH or LOW!",
+            achievement: "Master of Hardware"
+          }
+        ]
+      },
+      {
+        level: 4,
+        worldName: "LEVEL 4: TEMPLE OF MOTION",
+        description: "Master SG90 servo necks, loops, and autonomous robot escapes!",
+        stages: [
+          {
+            title: "Dead Center Alignment",
+            dialogue: "🤖 Which angle commands the SG90 servo neck to point DEAD STRAIGHT AHEAD?",
+            code: "headServo.write(___);",
+            options: [
+              { code: "90", label: "90° (Dead Center Ahead)", correct: true },
+              { code: "160", label: "160° (Left)", correct: false },
+              { code: "20", label: "20° (Right)", correct: false }
+            ],
+            explanation: "90° is dead center straight ahead on SG90 servos!",
+            achievement: "Straight Gaze"
+          },
+          {
+            title: "Looking Left",
+            dialogue: "👀 Swivel the ultrasonic eyes toward the LEFT horizon (angle > 90°):",
+            code: "headServo.write(___);",
+            options: [
+              { code: "160", label: "160° (Left Swivel)", correct: true },
+              { code: "20", label: "20° (Right)", correct: false },
+              { code: "90", label: "90° (Center)", correct: false }
+            ],
+            explanation: "160° points the robot neck left toward the side wall!",
+            achievement: "Left Lookout"
+          },
+          {
+            title: "Equipping Shield Servo",
+            dialogue: "🛡️ Swivel the neck to the RIGHT (angle < 90°) to scan for the shield:",
+            code: "headServo.write(___);",
+            options: [
+              { code: "20", label: "20° (Right Swivel)", correct: true },
+              { code: "160", label: "160° (Left)", correct: false },
+              { code: "180", label: "180°", correct: false }
+            ],
+            explanation: "20° points the servo neck right!",
+            achievement: "Right Lookout"
+          },
+          {
+            title: "The Gearbox Settling Pause",
+            dialogue: "⏳ Code runs in microseconds, but plastic gears have mass! Why pause 300ms?",
+            code: "delay(___);",
+            options: [
+              { code: "300", label: "300 (Let Gears Stop Vibrating)", correct: true },
+              { code: "0", label: "0 (Measure Mid-Turn)", correct: false },
+              { code: "50000", label: "50000", correct: false }
+            ],
+            explanation: "delay(300) gives the servo gears time to settle before measuring!",
+            achievement: "Patience of the Craftsman"
+          },
+          {
+            title: "The Counting Loop",
+            dialogue: "🔁 Blink the beacon LED 4 times using a counting loop:",
+            code: "___ (int i = 0; i < 4; i++) { blink(); }",
+            options: [
+              { code: "for", label: "for (Counting Loop)", correct: true },
+              { code: "if", label: "if", correct: false },
+              { code: "const", label: "const", correct: false }
+            ],
+            explanation: "'for' loops repeat code a fixed number of counted times!",
+            achievement: "Quadruple Beacon"
+          },
+          {
+            title: "Lighting All Torches",
+            dialogue: "🔥 Repeat while danger approaches:",
+            code: "___ (danger == true) { soundAlarm(); }",
+            options: [
+              { code: "while", label: "while (Conditional Loop)", correct: true },
+              { code: "int", label: "int", correct: false },
+              { code: "void", label: "void", correct: false }
+            ],
+            explanation: "'while' loops repeat continuously as long as a condition remains true!",
+            achievement: "Faithful Sentry"
+          },
+          {
+            title: "The Emergency Brake",
+            dialogue: "🛑 What motor speeds slam both left and right wheels to an instant stop?",
+            code: "drive(___, ___);",
+            options: [
+              { code: "0, 0", label: "0, 0 (Full Stop)", correct: true },
+              { code: "160, 160", label: "160, 160 (Drive Forward)", correct: false },
+              { code: "-140, -140", label: "-140, -140 (Reverse)", correct: false }
+            ],
+            explanation: "drive(0, 0) cuts motor power to zero!",
+            achievement: "Emergency Brake"
+          },
+          {
+            title: "Stepping Back for Clearance",
+            dialogue: "⬅️ Reverse slightly (-140) for 250ms so the neck doesn't scrape the wall:",
+            code: "drive(-140, -140); delay(___);",
+            options: [
+              { code: "250", label: "250 (Milliseconds)", correct: true },
+              { code: "5000", label: "5000", correct: false },
+              { code: "10", label: "10", correct: false }
+            ],
+            explanation: "A brief 250ms reverse gives clearance to swivel the head!",
+            achievement: "Strategic Retreat"
+          },
+          {
+            title: "Custom Function Creation",
+            dialogue: "🛠️ Package wheel driving into a reusable function with no math return:",
+            code: "___ driveForward() { drive(160, 160); }",
+            options: [
+              { code: "void", label: "void (Action Function)", correct: true },
+              { code: "int", label: "int", correct: false },
+              { code: "float", label: "float", correct: false }
+            ],
+            explanation: "'void' indicates a function performs an action without returning math!",
+            achievement: "Function Architect"
+          },
+          {
+            title: "The Grand Portal of Bezalel",
+            dialogue: "👑 Choose Left if left clearance is greater, otherwise choose Right:",
+            code: "if (leftDist ___ rightDist) { turnLeft(); }",
+            options: [
+              { code: ">", label: "> (Greater Clearance)", correct: true },
+              { code: "<", label: "< (Into the Wall)", correct: false },
+              { code: "==", label: "==", correct: false }
+            ],
+            explanation: "Always steer toward the GREATER (>) open distance clearance!",
+            achievement: "Master Craftsman of Bezalel"
+          }
+        ]
+      }
+    ];
+    const DEFAULT_PROFILE = (name = "YOU") => ({
+      name: name.toUpperCase().substring(0, 10),
+      hearts: 5,
+      gears: 0,
+      bits: 0,
+      prayerTokens: 3,
+      completed: {},
+      dungeonCompleted: {},
+      hero: 'gideon',
+      activeDungeonLevel: 1
+    });
+
+    let profiles = {};
+    let activeName = "YOU";
+    let state = DEFAULT_PROFILE("YOU");
+
+    function loadState() {
+      const raw = SafeStorage.get('veritas_quest_v6');
+      if (raw) {
+        try { profiles = JSON.parse(raw); } catch(e) {}
+      }
+      if (!profiles["YOU"]) profiles["YOU"] = DEFAULT_PROFILE("YOU");
+      activeName = SafeStorage.get('veritas_active_name_v6') || "YOU";
+      if (!profiles[activeName]) activeName = "YOU";
+      state = profiles[activeName];
+      if (state.prayerTokens === undefined) state.prayerTokens = 3;
+      if (!state.dungeonCompleted) state.dungeonCompleted = {};
+    }
+
+    function saveState() {
+      profiles[activeName] = state;
+      SafeStorage.set('veritas_quest_v6', JSON.stringify(profiles));
+      SafeStorage.set('veritas_active_name_v6', activeName);
+      updateHeaderHUD();
+    }
+
+    function updateHeaderHUD() {
+      document.getElementById('statHearts').innerText = state.hearts;
+      document.getElementById('statGears').innerText = state.gears;
+      document.getElementById('statBits').innerText = state.bits;
+      document.getElementById('statPrayer').innerText = state.prayerTokens !== undefined ? state.prayerTokens : 3;
+      document.getElementById('headerUserText').innerText = state.name;
+      document.getElementById('activeNameLabel').innerText = state.name;
+    }
+
+    /* RENDER LEARNING PATH ROADMAP WITH DUNGEON BOSS TRIAL AT END OF EACH UNIT */
+    function renderRoadmap() {
+      const c = document.getElementById('pathTreeContainer');
+      if (!c) return;
+      c.innerHTML = '';
+
+      CURRICULUM.forEach((unit, unitIdx) => {
+        const dungeonLvl = unitIdx + 1;
+        const isDungeonDone = !!state.dungeonCompleted[dungeonLvl];
+        const isPrevDungeonDone = (unitIdx === 0) || !!state.dungeonCompleted[unitIdx];
+
+        const sec = document.createElement('div');
+        sec.className = 'unit-section';
+        sec.style.opacity = isPrevDungeonDone ? '1' : '0.65';
+
+        sec.innerHTML = `
+          <div class="unit-header">
+            <div class="unit-title-group">
+              <span class="unit-icon">${unit.mascot.icon}</span>
+              <div>
+                <span class="unit-label">${unit.title}</span>
+                <div class="unit-name">${unit.subtitle}</div>
+              </div>
+            </div>
+            <span class="unit-mascot-pill font-code">${unit.mascot.name}</span>
+          </div>
+
+          <div class="stepping-stones">
+            ${unit.lessons.map(l => {
+              const isDone = !!state.completed[l.id];
+              return `
+                <button class="stone-btn ${isDone ? 'completed' : ''}" data-uid="${unit.id}" data-lid="${l.id}">
+                  <span class="stone-icon">${l.icon}</span>
+                  <span class="stone-title font-code">${l.title}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- THE DUNGEON BOSS TRIAL AT THE END OF THIS UNIT -->
+          <div class="dungeon-trial-box">
+            <div class="trial-info-group">
+              <span class="trial-icon-big">${isDungeonDone ? '🏆' : '🏰'}</span>
+              <div>
+                <div class="trial-title font-code">
+                  ${isDungeonDone ? 'DUNGEON LEVEL ' + dungeonLvl + ' CONQUERED! ✓' : '🏰 DUNGEON BOSS TRIAL: LEVEL ' + dungeonLvl}
+                </div>
+                <div class="trial-desc">
+                  ${isDungeonDone 
+                    ? 'All 10 challenges mastered. Portal unlocked!' 
+                    : '10 live challenges! Defeat the dungeon to unlock Unit ' + (dungeonLvl + 1) + '!'}
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-enter-trial font-code ${isDungeonDone ? 'completed' : ''}" data-dungeonlvl="${dungeonLvl}">
+              <span>${isDungeonDone ? '↺ REPLAY DUNGEON' : '⚔️ ENTER DUNGEON (' + dungeonLvl + '/4)'}</span>
+              <span>➔</span>
+            </button>
+          </div>
+        `;
+
+        // Lesson click listeners
+        sec.querySelectorAll('.stone-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const u = CURRICULUM.find(x => x.id === btn.dataset.uid);
+            const l = u.lessons.find(x => x.id === btn.dataset.lid);
+            startLesson(u, l);
+          });
+        });
+
+        // Dungeon Trial click listener
+        const trialBtn = sec.querySelector('.btn-enter-trial');
+        if (trialBtn) {
+          trialBtn.addEventListener('click', () => {
+            const lvl = parseInt(trialBtn.dataset.dungeonlvl);
+            startDungeonLevel(lvl, true);
+          });
+        }
+
+        c.appendChild(sec);
+      });
+    }
+
+    /* LESSON RUNNER (3D FLIP CARD, QUIZ, ORDER) */
+    let curUnit = null;
+    let curLesson = null;
+    let lessonDone = false;
+    let currentOrderState = [];
+    let selectedOrderIndex = null;
+
+    function getNextCurriculumLesson(unit, lesson) {
+      const uIdx = CURRICULUM.findIndex(u => u.id === unit.id);
+      if (uIdx === -1) return null;
+      const lIdx = unit.lessons.findIndex(l => l.id === lesson.id);
+      if (lIdx + 1 < unit.lessons.length) {
+        return { unit: unit, lesson: unit.lessons[lIdx + 1] };
+      } else if (uIdx + 1 < CURRICULUM.length) {
+        return { unit: CURRICULUM[uIdx + 1], lesson: CURRICULUM[uIdx + 1].lessons[0] };
+      }
+      return null;
+    }
+
+    function startLesson(unit, lesson) {
+      audio.playFlip();
+      curUnit = unit;
+      curLesson = lesson;
+      lessonDone = false;
+      selectedOrderIndex = null;
+
+      document.getElementById('pathView').classList.add('hidden');
+      document.getElementById('adventureView').classList.add('hidden');
+      document.getElementById('lessonView').classList.remove('hidden');
+
+      document.getElementById('lessonContent').classList.remove('hidden');
+      document.getElementById('arenaFooter').classList.remove('hidden');
+      document.getElementById('lessonCompleteCard').classList.add('hidden');
+
+      document.getElementById('lessonMascotName').innerText = unit.mascot.name;
+      document.getElementById('lessonMascotIcon').innerText = unit.mascot.icon;
+      document.getElementById('lessonMascotVerse').innerText = unit.mascot.verse;
+      document.getElementById('lessonHeartCount').innerText = state.hearts;
+      document.getElementById('lessonProgressBar').style.width = '25%';
+      document.getElementById('lessonFeedbackText').innerHTML = '';
+      document.getElementById('lessonActionBtn').innerText = 'CHECK';
+
+      const content = document.getElementById('lessonContent');
+
+      if (lesson.type === 'flashcard') {
+        const c = lesson.card;
+        content.innerHTML = `
+          <div style="font-size: 0.85rem; color: var(--gold); font-weight: 900; margin-bottom: 8px;" class="font-code uppercase">3D Knowledge Flashcard</div>
+          <div class="flashcard-3d-scene" id="cardScene">
+            <div class="flashcard-3d-inner" id="cardInner">
+              <div class="flashcard-face flashcard-front">
+                <span class="flash-hint-pill font-code">${c.frontTitle}</span>
+                <div class="flash-term-main font-code">${c.frontKeyword}</div>
+                <div class="flash-desc-text">${c.frontDesc}</div>
+                <div style="margin-top: 10px; font-size: 0.85rem; color: var(--teal-light); font-weight: 800;">🔄 TAP CARD TO FLIP</div>
+              </div>
+              <div class="flashcard-face flashcard-back">
+                <span class="flash-hint-pill font-code" style="color: var(--teal-light); border-color: var(--teal);">C++ Microchip Reality</span>
+                <div class="flash-code-highlight font-code">${c.backKeyword}</div>
+                <div style="font-size: 1.1rem; color: var(--gold-light); font-weight: 800;" class="font-code">${c.backCode}</div>
+                <div class="flash-desc-text">${c.backDesc}</div>
+              </div>
+            </div>
+          </div>
+        `;
+        document.getElementById('cardScene').addEventListener('click', () => {
+          audio.playFlip();
+          document.getElementById('cardInner').classList.toggle('flipped');
+        });
+
+      } else if (lesson.type === 'order') {
+        const o = lesson.order;
+        currentOrderState = [...o.correctOrder].sort(() => Math.random() - 0.5);
+
+        content.innerHTML = `
+          <div style="font-size: 0.85rem; color: var(--teal-light); font-weight: 900; margin-bottom: 8px;" class="font-code uppercase">C++ Code Sequencer</div>
+          <div style="font-size: 1.15rem; font-weight: 900; color: white; margin-bottom: 14px;">${o.prompt}</div>
+          <div class="sequencer-container" id="seqContainer"></div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">Tap any block, then tap another to swap positions!</div>
+        `;
+        renderSequencerRows();
+
+      } else {
+        const q = lesson.quiz;
+        content.innerHTML = `
+          <div style="font-size: 0.85rem; color: var(--teal-light); font-weight: 900; margin-bottom: 8px;" class="font-code uppercase">Active Recall Drill</div>
+          <div style="font-size: 1.15rem; font-weight: 900; color: white; margin-bottom: 16px;">${q.prompt}</div>
+          <div class="quiz-options">
+            ${q.options.map((opt, i) => `
+              <button class="quiz-btn" data-correct="${opt.correct}">
+                <span class="font-code" style="color: var(--gold); font-weight: 900; font-size: 1.1rem;">${String.fromCharCode(65 + i)}</span>
+                <span>${opt.text}</span>
+              </button>
+            `).join('')}
+          </div>
+        `;
+
+        content.querySelectorAll('.quiz-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            content.querySelectorAll('.quiz-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            audio.playFlip();
+          });
+        });
+      }
+    }
+
+    function renderSequencerRows() {
+      const container = document.getElementById('seqContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      currentOrderState.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = `sequencer-row ${selectedOrderIndex === idx ? 'selected' : ''}`;
+        row.innerHTML = `
+          <div class="sequencer-index font-code">${idx + 1}</div>
+          <div class="sequencer-code font-code">${item}</div>
+          <div class="font-code" style="font-size: 0.8rem; color: var(--text-muted);">↕ Swap</div>
+        `;
+        row.addEventListener('click', () => {
+          audio.playFlip();
+          if (selectedOrderIndex === null) {
+            selectedOrderIndex = idx;
+            renderSequencerRows();
+          } else {
+            const temp = currentOrderState[selectedOrderIndex];
+            currentOrderState[selectedOrderIndex] = currentOrderState[idx];
+            currentOrderState[idx] = temp;
+            selectedOrderIndex = null;
+            renderSequencerRows();
+          }
+        });
+        container.appendChild(row);
+      });
+    }
+
+    document.getElementById('lessonActionBtn').addEventListener('click', () => {
+      const fb = document.getElementById('lessonFeedbackText');
+
+      if (!lessonDone) {
+        if (curLesson.type === 'flashcard') {
+          audio.playCorrect();
+          state.completed[curLesson.id] = true;
+          state.gears += 20;
+          state.bits += 5;
+          state.prayerTokens = (state.prayerTokens || 0) + 1;
+          saveState();
+          showLessonCompletionCard(20, 5);
+
+        } else if (curLesson.type === 'order') {
+          const expected = curLesson.order.correctOrder;
+          let isCorrect = true;
+          for (let i = 0; i < expected.length; i++) {
+            if (currentOrderState[i] !== expected[i]) { isCorrect = false; break; }
+          }
+
+          if (isCorrect) {
+            audio.playCorrect();
+            state.completed[curLesson.id] = true;
+            state.gears += 30;
+            state.bits += 15;
+            state.prayerTokens = (state.prayerTokens || 0) + 1;
+            saveState();
+            showLessonCompletionCard(30, 15);
+          } else {
+            audio.playWrong();
+            state.hearts = Math.max(0, state.hearts - 1);
+            saveState();
+            document.getElementById('lessonHeartCount').innerText = state.hearts;
+            fb.innerHTML = `<span style="color: var(--rose);">✕ Not in order! Swap blocks (-1 ❤️)</span>`;
+            if (state.hearts === 0) showPrayerModal();
+          }
+
+        } else {
+          const sel = document.querySelector('.quiz-btn.selected');
+          if (!sel) {
+            fb.innerHTML = `<span style="color: var(--gold);">Choose an option first!</span>`;
+            return;
+          }
+          if (sel.dataset.correct === 'true') {
+            audio.playCorrect();
+            sel.classList.add('correct');
+            state.completed[curLesson.id] = true;
+            state.gears += 25;
+            state.bits += 10;
+            state.prayerTokens = (state.prayerTokens || 0) + 1;
+            saveState();
+            showLessonCompletionCard(25, 10);
+          } else {
+            audio.playWrong();
+            sel.classList.add('wrong');
+            state.hearts = Math.max(0, state.hearts - 1);
+            saveState();
+            document.getElementById('lessonHeartCount').innerText = state.hearts;
+            fb.innerHTML = `<span style="color: var(--rose);">✕ Try again! (-1 ❤️)</span>`;
+            if (state.hearts === 0) showPrayerModal();
+          }
+        }
+      }
+    });
+
+    function showLessonCompletionCard(gears, bits) {
+      lessonDone = true;
+      document.getElementById('lessonProgressBar').style.width = '100%';
+      document.getElementById('lessonContent').classList.add('hidden');
+      document.getElementById('arenaFooter').classList.add('hidden');
+
+      const card = document.getElementById('lessonCompleteCard');
+      document.getElementById('rewardGears').innerText = `+${gears} ⚙️ Gears`;
+      document.getElementById('rewardBits').innerText = `+${bits} 🪙 Bits`;
+
+      const nextTarget = getNextCurriculumLesson(curUnit, curLesson);
+      const nextBtn = document.getElementById('btnContinueNext');
+      if (nextTarget) {
+        nextBtn.innerHTML = `<span>CONTINUE TO NEXT LEVEL (${nextTarget.lesson.title})</span> <span>➔</span>`;
+      } else {
+        nextBtn.innerHTML = `<span>UNIT READY FOR DUNGEON TRIAL!</span> <span>🏰</span>`;
+      }
+
+      card.classList.remove('hidden');
+    }
+
+    document.getElementById('btnContinueNext').addEventListener('click', () => {
+      audio.playFlip();
+      const nextTarget = getNextCurriculumLesson(curUnit, curLesson);
+      if (nextTarget) {
+        startLesson(nextTarget.unit, nextTarget.lesson);
+      } else {
+        document.getElementById('lessonView').classList.add('hidden');
+        document.getElementById('pathView').classList.remove('hidden');
+        renderRoadmap();
+      }
+    });
+
+    document.getElementById('btnReturnPath').addEventListener('click', () => {
+      audio.playFlip();
+      document.getElementById('lessonView').classList.add('hidden');
+      document.getElementById('pathView').classList.remove('hidden');
+      renderRoadmap();
+    });
+
+    document.getElementById('exitLessonBtn').addEventListener('click', () => {
+      document.getElementById('lessonView').classList.add('hidden');
+      document.getElementById('pathView').classList.remove('hidden');
+      renderRoadmap();
+    });
+    /* KINGDOM ADVENTURE ENGINE (4 LEVELS × 10 QUESTIONS) */
+    let advCanvas = null;
+    let advCtx = null;
+    let advCharX = 30;
+    let advTargetX = 30;
+    let advWalking = false;
+    let advTick = 0;
+    let advLoopActive = false;
+    let curDungeonLevel = 1;      // 1 to 4
+    let curDungeonStage = 0;      // 0 to 9 (10 stages)
+    let hasShieldEquipped = false;
+    let isTorchLit = false;
+    let isDoorOpen = false;
+
+    function initAdvCanvas() {
+      advCanvas = document.getElementById('adventureCanvas');
+      if (!advCanvas) return;
+      advCtx = advCanvas.getContext('2d');
+      updateHeroPickerButtons();
+      renderAdvTerminal();
+      if (!advLoopActive) {
+        advLoopActive = true;
+        requestAnimationFrame(advLoop);
+      }
+    }
+
+    function startDungeonLevel(lvlNumber, switchView = true) {
+      curDungeonLevel = Math.max(1, Math.min(4, lvlNumber));
+      curDungeonStage = 0;
+      advCharX = 30;
+      advTargetX = 30;
+      advWalking = false;
+      hasShieldEquipped = false;
+      isTorchLit = false;
+      isDoorOpen = false;
+
+      state.activeDungeonLevel = curDungeonLevel;
+      saveState();
+
+      if (switchView) {
+        switchMode('adventure');
+      } else {
+        renderAdvTerminal();
+      }
+    }
+
+    function renderAdvTerminal() {
+      const lvlData = ADVENTURE_LEVELS[curDungeonLevel - 1];
+      const stage = lvlData.stages[curDungeonStage];
+
+      document.getElementById('advWorldTag').innerText = `⚔️ ${lvlData.worldName} • STAGE ${curDungeonStage + 1}/10`;
+      document.getElementById('advWorldTitle').innerText = `${stage.title} (${curDungeonStage + 1}/10)`;
+      document.getElementById('advWorldDesc').innerText = lvlData.description;
+
+      const objShield = document.getElementById('objShield');
+      const objTorch = document.getElementById('objTorch');
+      const objDoor = document.getElementById('objDoor');
+
+      hasShieldEquipped = (curDungeonStage >= 3);
+      isTorchLit = (curDungeonStage >= 5);
+      isDoorOpen = (curDungeonStage >= 9);
+
+      if (objShield) {
+        objShield.style.borderColor = hasShieldEquipped ? 'var(--gold)' : '#334155';
+        objShield.style.color = hasShieldEquipped ? 'var(--gold-light)' : '#64748b';
+        objShield.innerText = hasShieldEquipped ? '🛡️ Shield Equipped! ✓' : '🛡️ Shield (Stage 3)';
+      }
+      if (objTorch) {
+        objTorch.style.borderColor = isTorchLit ? '#f97316' : '#334155';
+        objTorch.style.color = isTorchLit ? '#fdba74' : '#64748b';
+        objTorch.innerText = isTorchLit ? '🔥 Torch Lit! ✓' : '🔥 Torch (Stage 6)';
+      }
+      if (objDoor) {
+        objDoor.style.borderColor = isDoorOpen ? 'var(--emerald)' : '#334155';
+        objDoor.style.color = isDoorOpen ? '#6ee7b7' : '#64748b';
+        objDoor.innerText = isDoorOpen ? '🚪 Door Open! ✓' : '🚪 Door (Stage 10)';
+      }
+
+      const term = document.getElementById('advTerminal');
+      if (!term) return;
+
+      term.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8rem; color: var(--gold-light); font-weight: 900;" class="font-code">
+            ${lvlData.worldName} • QUEST ${curDungeonStage + 1} OF 10
+          </span>
+          <span class="font-code" style="font-size: 0.8rem; color: #a855f7; font-weight: 800;">
+            ${(curDungeonStage + 1) * 10}% COMPLETE
+          </span>
+        </div>
+
+        <div style="font-size: 1rem; color: #f1f5f9; background: #080a13; padding: 14px; border-radius: 14px; border: 1.5px solid var(--border-color); line-height: 1.5;">
+          ${stage.dialogue}
+        </div>
+
+        <div style="text-align: center; background: #070910; padding: 14px; border-radius: 16px; border: 2.5px solid var(--gold); color: var(--teal-light); font-weight: 900; font-size: 1.35rem;" class="font-code">
+          ${stage.code}
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          ${stage.options.map((opt, i) => `
+            <button class="adv-opt-btn btn-nav" style="flex: 1; min-width: 140px; justify-content: center; padding: 14px; font-size: 1rem;" data-correct="${opt.correct}">
+              <span class="font-code" style="color: var(--gold); font-weight: 900; font-size: 1.1rem;">${String.fromCharCode(65 + i)}</span>
+              <span>${opt.label}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div id="advFeedback" style="min-height: 24px; text-align: center; font-size: 0.95rem; font-weight: 800;"></div>
+      `;
+
+      term.querySelectorAll('.adv-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const fb = document.getElementById('advFeedback');
+          if (btn.dataset.correct === 'true') {
+            audio.playCorrect();
+            btn.style.background = '#059669';
+            btn.style.color = '#ffffff';
+            state.gears += 25;
+            state.bits += 10;
+            saveState();
+
+            fb.innerHTML = `<span style="color: var(--emerald);">✓ EXCELLENT! ${stage.explanation} (+25 ⚙️)</span>`;
+
+            advTargetX = Math.min(270, 30 + (curDungeonStage + 1) * 24);
+            advWalking = true;
+            showAdvToast(stage.achievement);
+
+            if (curDungeonStage === 9) {
+              setTimeout(() => {
+                advTargetX = 290;
+                advWalking = true;
+                handleDungeonConquered(curDungeonLevel);
+              }, 1200);
+            } else {
+              setTimeout(() => {
+                curDungeonStage++;
+                renderAdvTerminal();
+              }, 1200);
+            }
+          } else {
+            audio.playWrong();
+            btn.style.background = '#881337';
+            state.hearts = Math.max(0, state.hearts - 1);
+            saveState();
+            fb.innerHTML = `<span style="color: var(--rose);">✕ Not quite. Review the code rule! (-1 ❤️)</span>`;
+            if (state.hearts === 0) showPrayerModal();
+          }
+        });
+      });
+    }
+
+    function handleDungeonConquered(levelNum) {
+      audio.playCorrect();
+      state.dungeonCompleted[levelNum] = true;
+      state.gears += 100;
+      state.bits += 50;
+      state.prayerTokens = (state.prayerTokens || 0) + 2;
+      saveState();
+
+      const term = document.getElementById('advTerminal');
+      if (!term) return;
+
+      const nextLevelNum = levelNum + 1;
+      const hasNextUnit = nextLevelNum <= 4;
+
+      term.innerHTML = `
+        <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #131d36, #1b2f4f); border: 2.5px solid var(--emerald); border-radius: 20px; display: flex; flex-direction: column; gap: 14px; align-items: center;">
+          <div style="font-size: 3rem;">🎉🕊️🚪</div>
+          <h3 style="font-size: 1.6rem; font-weight: 900; color: white;">DUNGEON LEVEL ${levelNum} CONQUERED!</h3>
+          <p style="font-size: 1rem; color: #cbd5e1; max-width: 500px; line-height: 1.5;">
+            "You have fought the good fight, you have finished the race, you have kept the faith!" — 2 Timothy 4:7
+          </p>
+          <div class="reward-pill-row font-code">
+            <div class="reward-pill" style="color: var(--teal-light);">+100 ⚙️ Gears</div>
+            <div class="reward-pill" style="color: var(--gold-light);">+50 🪙 Bits</div>
+            <div class="reward-pill" style="color: var(--purple-light);">+2 🕊️ Prayer Tokens</div>
+          </div>
+          ${hasNextUnit ? `
+            <div style="font-size: 0.95rem; color: var(--emerald); font-weight: 800;">
+              ✓ Unit ${nextLevelNum} is now UNLOCKED on the Learning Path!
+            </div>
+          ` : `
+            <div style="font-size: 0.95rem; color: var(--gold-light); font-weight: 800;">
+              👑 ALL 4 DUNGEONS CONQUERED! YOU ARE A C++ GRANDMASTER!
+            </div>
+          `}
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; margin-top: 8px;">
+            <button id="btnDungeonNextUnit" class="btn-next-step">
+              <span>${hasNextUnit ? 'ADVANCE TO UNIT ' + nextLevelNum + ' ON PATH' : 'VIEW MASTER ROADMAP'}</span> <span>➔</span>
+            </button>
+            <button id="btnDungeonReplay" class="btn-home-path">
+              <span>REPLAY DUNGEON ↺</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btnDungeonNextUnit').addEventListener('click', () => {
+        switchMode('roadmap');
+      });
+      document.getElementById('btnDungeonReplay').addEventListener('click', () => {
+        startDungeonLevel(levelNum, false);
+      });
+    }
+
+    /* ANIMATED VOXEL CANVAS LOOP */
+    function advLoop() {
+      if (!advCanvas || !advCtx) return;
+      advTick++;
+
+      const W = advCanvas.width;
+      const H = advCanvas.height;
+
+      if (advWalking) {
+        if (Math.abs(advCharX - advTargetX) > 1.5) {
+          advCharX += (advTargetX > advCharX ? 2 : -2);
+        } else {
+          advCharX = advTargetX;
+          advWalking = false;
+        }
+      }
+
+      advCtx.clearRect(0, 0, W, H);
+
+      // Castle Wall Backdrop
+      advCtx.fillStyle = '#101424';
+      advCtx.fillRect(0, 0, W, H);
+
+      // Cobblestone bricks pattern
+      advCtx.strokeStyle = '#1b2238';
+      advCtx.lineWidth = 1.5;
+      for (let y = 0; y < 160; y += 22) {
+        const offset = (y % 44 === 0) ? 0 : 16;
+        for (let x = offset; x < W; x += 32) {
+          advCtx.strokeRect(x, y, 32, 22);
+        }
+      }
+
+      // Torches (at x=70 and x=180)
+      [70, 180].forEach(tx => {
+        advCtx.fillStyle = '#475569';
+        advCtx.fillRect(tx - 3, 50, 6, 20);
+
+        if (isTorchLit) {
+          const flameFlicker = Math.sin(advTick * 0.25 + tx) * 2;
+          advCtx.fillStyle = '#f97316';
+          advCtx.beginPath();
+          advCtx.arc(tx, 44 + flameFlicker, 7, 0, Math.PI * 2);
+          advCtx.fill();
+
+          advCtx.fillStyle = '#fde047';
+          advCtx.beginPath();
+          advCtx.arc(tx, 42 + flameFlicker, 4, 0, Math.PI * 2);
+          advCtx.fill();
+
+          const grad = advCtx.createRadialGradient(tx, 44, 4, tx, 44, 30);
+          grad.addColorStop(0, 'rgba(251, 191, 36, 0.25)');
+          grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
+          advCtx.fillStyle = grad;
+          advCtx.beginPath();
+          advCtx.arc(tx, 44, 30, 0, Math.PI * 2);
+          advCtx.fill();
+        } else {
+          advCtx.fillStyle = '#334155';
+          advCtx.fillRect(tx - 4, 42, 8, 8);
+        }
+      });
+
+      // Shield Pedestal (at x=90)
+      advCtx.fillStyle = '#1e293b';
+      advCtx.fillRect(84, 160, 20, 16);
+      if (!hasShieldEquipped) {
+        const floatY = 145 + Math.sin(advTick * 0.1) * 3;
+        advCtx.fillStyle = '#eab308';
+        advCtx.beginPath();
+        advCtx.arc(94, floatY, 8, 0, Math.PI * 2);
+        advCtx.fill();
+        advCtx.fillStyle = '#1e293b';
+        advCtx.fillRect(92, floatY - 4, 4, 8);
+        advCtx.fillRect(90, floatY - 2, 8, 4);
+      }
+
+      // Floor & Lava Chasm
+      advCtx.fillStyle = '#334155';
+      advCtx.fillRect(0, 176, 140, 84);
+
+      // Boiling Lava
+      const lavaY = 186;
+      advCtx.fillStyle = '#0f172a';
+      advCtx.fillRect(140, 176, 70, 84);
+      advCtx.fillStyle = '#ea580c';
+      advCtx.fillRect(140, lavaY, 70, 74);
+
+      advCtx.fillStyle = '#fbbf24';
+      for (let bx = 145; bx < 205; bx += 14) {
+        const bubble = Math.sin(advTick * 0.2 + bx) * 2;
+        advCtx.beginPath();
+        advCtx.arc(bx, lavaY + 8 + bubble, 3, 0, Math.PI * 2);
+        advCtx.fill();
+      }
+
+      // Magma Bridge
+      if (curDungeonStage >= 6) {
+        advCtx.fillStyle = '#475569';
+        advCtx.fillRect(140, 176, 70, 14);
+        advCtx.strokeStyle = '#64748b';
+        advCtx.lineWidth = 1;
+        for (let sx = 140; sx < 210; sx += 14) {
+          advCtx.strokeRect(sx, 176, 14, 14);
+        }
+      }
+
+      advCtx.fillStyle = '#334155';
+      advCtx.fillRect(210, 176, W - 210, 84);
+
+      // Floor line
+      advCtx.strokeStyle = '#475569';
+      advCtx.lineWidth = 2;
+      advCtx.beginPath();
+      advCtx.moveTo(0, 176);
+      advCtx.lineTo(W, 176);
+      advCtx.stroke();
+
+      // Portal Doorway (at x=265)
+      const doorX = 265;
+      const doorY = 106;
+      const doorW = 38;
+      const doorH = 70;
+
+      advCtx.fillStyle = '#1e293b';
+      advCtx.fillRect(doorX - 4, doorY - 6, doorW + 8, doorH + 6);
+
+      if (isDoorOpen) {
+        const portalGrad = advCtx.createLinearGradient(doorX, doorY, doorX + doorW, doorY + doorH);
+        portalGrad.addColorStop(0, '#fef08a');
+        portalGrad.addColorStop(0.5, '#38bdf8');
+        portalGrad.addColorStop(1, '#a855f7');
+        advCtx.fillStyle = portalGrad;
+        advCtx.fillRect(doorX, doorY, doorW, doorH);
+
+        advCtx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+        advCtx.beginPath();
+        advCtx.moveTo(doorX + doorW / 2, doorY);
+        advCtx.lineTo(doorX - 25, 176);
+        advCtx.lineTo(doorX + doorW + 25, 176);
+        advCtx.closePath();
+        advCtx.fill();
+      } else {
+        advCtx.fillStyle = '#0f172a';
+        advCtx.fillRect(doorX, doorY, doorW, doorH);
+        advCtx.strokeStyle = '#ca8a04';
+        advCtx.lineWidth = 2;
+        advCtx.strokeRect(doorX + 4, doorY + 4, doorW - 8, doorH - 8);
+
+        advCtx.fillStyle = '#eab308';
+        advCtx.fillRect(doorX + doorW / 2 - 2, doorY + 30, 4, 10);
+        advCtx.fillRect(doorX + doorW / 2 - 5, doorY + 32, 10, 4);
+      }
+
+      // Robot Hero Sprite
+      const hero = state.hero || 'gideon';
+      let heroMainColor = '#d97706';
+      let heroAccent = '#fbbf24';
+
+      if (hero === 'deborah') {
+        heroMainColor = '#059669';
+        heroAccent = '#34d399';
+      } else if (hero === 'david') {
+        heroMainColor = '#4338ca';
+        heroAccent = '#818cf8';
+      }
+
+      const hX = advCharX;
+      const legBob = advWalking ? Math.sin(advTick * 0.4) * 3 : 0;
+      const hY = 152 + legBob;
+
+      // Legs
+      advCtx.fillStyle = '#1e293b';
+      advCtx.fillRect(hX + 4, hY + 16, 4, 8 - legBob);
+      advCtx.fillRect(hX + 12, hY + 16, 4, 8 + legBob);
+
+      // Torso
+      advCtx.fillStyle = heroMainColor;
+      advCtx.fillRect(hX + 2, hY + 4, 16, 12);
+
+      // Faith Cross on chest
+      advCtx.fillStyle = '#ffffff';
+      advCtx.fillRect(hX + 9, hY + 6, 2, 8);
+      advCtx.fillRect(hX + 7, hY + 8, 6, 2);
+
+      // Head
+      advCtx.fillStyle = heroAccent;
+      advCtx.fillRect(hX + 4, hY - 6, 12, 10);
+
+      // Visor Eye
+      advCtx.fillStyle = '#38bdf8';
+      advCtx.fillRect(hX + 10, hY - 3, 5, 3);
+
+      // Antenna
+      advCtx.fillStyle = '#94a3b8';
+      advCtx.fillRect(hX + 9, hY - 10, 2, 4);
+      advCtx.fillStyle = '#f43f5e';
+      advCtx.fillRect(hX + 8, hY - 12, 4, 2);
+
+      // Equipped Shield
+      if (hasShieldEquipped) {
+        advCtx.fillStyle = '#eab308';
+        advCtx.fillRect(hX + 18, hY + 4, 4, 12);
+        advCtx.fillStyle = '#ffffff';
+        advCtx.fillRect(hX + 19, hY + 8, 2, 4);
+      }
+
+      requestAnimationFrame(advLoop);
+    }
+
+    let curMode = 'roadmap';
+    function switchMode(newMode) {
+      audio.playFlip();
+      const p = document.getElementById('pathView');
+      const a = document.getElementById('adventureView');
+      const l = document.getElementById('lessonView');
+      const icon = document.getElementById('modeToggleIcon');
+      const text = document.getElementById('modeToggleText');
+
+      curMode = newMode;
+      if (curMode === 'adventure') {
+        p.classList.add('hidden');
+        l.classList.add('hidden');
+        a.classList.remove('hidden');
+        if (icon) icon.innerText = '🗺️';
+        if (text) text.innerText = 'Path';
+        initAdvCanvas();
+      } else {
+        a.classList.add('hidden');
+        l.classList.add('hidden');
+        p.classList.remove('hidden');
+        if (icon) icon.innerText = '🎮';
+        if (text) text.innerText = 'Adventure';
+        renderRoadmap();
+      }
+    }
+
+    document.getElementById('modeToggleBtn').addEventListener('click', () => {
+      switchMode(curMode === 'roadmap' ? 'adventure' : 'roadmap');
+    });
+
+    const advBackBtn = document.getElementById('advBackToPathBtn');
+    if (advBackBtn) {
+      advBackBtn.addEventListener('click', () => {
+        switchMode('roadmap');
+      });
+    }
+
+    document.querySelectorAll('.hero-pick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playFlip();
+        state.hero = btn.dataset.hero;
+        saveState();
+        updateHeroPickerButtons();
+      });
+    });
+
+    function updateHeroPickerButtons() {
+      document.querySelectorAll('.hero-pick-btn').forEach(b => {
+        const isActive = (b.dataset.hero === (state.hero || 'gideon'));
+        b.style.background = isActive ? 'var(--gold)' : '#1c2235';
+        b.style.color = isActive ? '#080a12' : '#ffffff';
+        b.style.borderColor = isActive ? 'var(--gold-light)' : 'var(--border-color)';
+      });
+    }
+
+    function showAdvToast(title) {
+      const toast = document.getElementById('advToast');
+      const titleEl = document.getElementById('advToastTitle');
+      if (!toast || !titleEl) return;
+      titleEl.innerText = title;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    /* PRAYER ALTAR & REWARDS */
+    function showPrayerModal() {
+      audio.playFlip();
+      updateModalBalances();
+      document.getElementById('prayerFeedback').innerHTML = '';
+      document.getElementById('prayerModal').classList.remove('hidden');
+    }
+
+    function updateModalBalances() {
+      document.getElementById('modalCurrentHearts').innerText = state.hearts;
+      document.getElementById('modalCurrentPrayer').innerText = state.prayerTokens !== undefined ? state.prayerTokens : 0;
+      document.getElementById('modalCurrentGears').innerText = state.gears;
+      document.getElementById('modalCurrentBits').innerText = state.bits;
+      document.getElementById('lessonHeartCount').innerText = state.hearts;
+    }
+
+    document.getElementById('hudHeartsBtn').addEventListener('click', showPrayerModal);
+    document.getElementById('hudPrayerBtn').addEventListener('click', showPrayerModal);
+    document.getElementById('closePrayerBtn').addEventListener('click', () => {
+      document.getElementById('prayerModal').classList.add('hidden');
+    });
+
+    document.getElementById('redeemPrayerBtn').addEventListener('click', () => {
+      const fb = document.getElementById('prayerFeedback');
+      if (state.hearts >= 5) {
+        fb.innerHTML = `<span style="color: var(--teal-light);">Hearts are already full!</span>`;
+        return;
+      }
+      if ((state.prayerTokens || 0) < 1) {
+        audio.playWrong();
+        fb.innerHTML = `<span style="color: var(--rose);">Need 1 Prayer Token!</span>`;
+        return;
+      }
+      audio.playCorrect();
+      state.prayerTokens -= 1;
+      state.hearts = 5;
+      saveState();
+      updateModalBalances();
+      fb.innerHTML = `<span style="color: var(--emerald);">✓ Strength renewed! Full 5 ❤️ Hearts.</span>`;
+    });
+
+    document.getElementById('tradeGearsBtn').addEventListener('click', () => {
+      const fb = document.getElementById('prayerFeedback');
+      if (state.hearts >= 5) {
+        fb.innerHTML = `<span style="color: var(--teal-light);">Hearts are already full!</span>`;
+        return;
+      }
+      if (state.gears < 40) {
+        audio.playWrong();
+        fb.innerHTML = `<span style="color: var(--rose);">Need 40 Gears! (You have ${state.gears})</span>`;
+        return;
+      }
+      audio.playCorrect();
+      state.gears -= 40;
+      state.hearts = Math.min(5, state.hearts + 2);
+      saveState();
+      updateModalBalances();
+      fb.innerHTML = `<span style="color: var(--emerald);">✓ Traded 40 ⚙️ Gears for +2 ❤️ Hearts!</span>`;
+    });
+
+    document.getElementById('tradeBitsBtn').addEventListener('click', () => {
+      const fb = document.getElementById('prayerFeedback');
+      if (state.hearts >= 5) {
+        fb.innerHTML = `<span style="color: var(--teal-light);">Hearts are already full!</span>`;
+        return;
+      }
+      if (state.bits < 20) {
+        audio.playWrong();
+        fb.innerHTML = `<span style="color: var(--rose);">Need 20 Golden Bits! (You have ${state.bits})</span>`;
+        return;
+      }
+      audio.playCorrect();
+      state.bits -= 20;
+      state.hearts = Math.min(5, state.hearts + 1);
+      saveState();
+      updateModalBalances();
+      fb.innerHTML = `<span style="color: var(--emerald);">✓ Traded 20 🪙 Bits for +1 ❤️ Heart!</span>`;
+    });
+
+    /* PROFILE SWITCHER */
+    function renderProfileList() {
+      const list = document.getElementById('profileList');
+      list.innerHTML = '';
+      Object.keys(profiles).forEach(k => {
+        const p = profiles[k];
+        const isCurrent = (k === activeName);
+        const item = document.createElement('div');
+        item.style.cssText = `background: ${isCurrent ? 'rgba(245,158,11,0.15)' : '#131726'}; padding: 10px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid ${isCurrent ? 'var(--gold)' : 'var(--border-color)'}; font-size: 0.9rem;`;
+        item.innerHTML = `
+          <div>
+            <b class="font-code" style="color: white; font-size: 1rem;">${p.name}</b>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${p.gears} Gears • ${Object.keys(p.completed || {}).length} Done</div>
+          </div>
+          <button class="btn-nav" style="font-size: 0.85rem; background: ${isCurrent ? 'var(--gold)' : '#1c2235'}; color: ${isCurrent ? 'black' : 'white'};">${isCurrent ? 'ACTIVE' : 'SWITCH'}</button>
+        `;
+        if (!isCurrent) {
+          item.querySelector('button').addEventListener('click', () => {
+            activeName = k;
+            state = profiles[k];
+            saveState();
+            renderRoadmap();
+            renderLeaderboard();
+            document.getElementById('profileModal').classList.add('hidden');
+          });
+        }
+        list.appendChild(item);
+      });
+    }
+
+    document.getElementById('headerUserBtn').addEventListener('click', () => {
+      audio.playFlip();
+      renderProfileList();
+      document.getElementById('profileModal').classList.remove('hidden');
+    });
+    document.getElementById('closeProfileBtn').addEventListener('click', () => {
+      document.getElementById('profileModal').classList.add('hidden');
+    });
+
+    document.getElementById('saveRenameBtn').addEventListener('click', () => {
+      const input = document.getElementById('renameInput');
+      const val = (input.value || '').trim().toUpperCase().replace(/[^A-Z0-9_]/g, '').substring(0, 10);
+      if (!val || val === activeName) return;
+      profiles[val] = { ...state, name: val };
+      delete profiles[activeName];
+      activeName = val;
+      state = profiles[val];
+      saveState();
+      input.value = '';
+      renderProfileList();
+      audio.playCorrect();
+    });
+
+    document.getElementById('createProfileBtn').addEventListener('click', () => {
+      const input = document.getElementById('newProfileInput');
+      const val = (input.value || '').trim().toUpperCase().replace(/[^A-Z0-9_]/g, '').substring(0, 10);
+      if (!val) return;
+      if (!profiles[val]) profiles[val] = DEFAULT_PROFILE(val);
+      activeName = val;
+      state = profiles[val];
+      saveState();
+      input.value = '';
+      renderProfileList();
+      renderRoadmap();
+      document.getElementById('profileModal').classList.add('hidden');
+      audio.playCorrect();
+    });
+
+    /* LEADERBOARD & DECODER MODALS */
+    function renderLeaderboard() {
+      const tbody = document.getElementById('leaderboardRows');
+      tbody.innerHTML = '';
+      const list = Object.keys(profiles).map(k => profiles[k]);
+      list.sort((a, b) => b.gears - a.gears);
+      list.forEach((p, idx) => {
+        const isMe = (p.name === activeName);
+        const tr = document.createElement('tr');
+        tr.style.cssText = `border-bottom: 1.5px solid var(--border-color); ${isMe ? 'background: rgba(245,158,11,0.12); font-weight: 900;' : ''}`;
+        tr.innerHTML = `
+          <td style="padding: 10px 12px; color: var(--text-muted);">#${idx + 1}</td>
+          <td style="padding: 10px 12px; color: ${isMe ? 'var(--gold)' : 'white'}; font-size: 1rem;">${p.name} ${isMe ? '⭐' : ''}</td>
+          <td style="padding: 10px 12px; text-align: right; color: white; font-weight: 900;">${p.gears}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('leaderboardBtn').addEventListener('click', () => {
+      audio.playFlip();
+      renderLeaderboard();
+      document.getElementById('leaderboardModal').classList.remove('hidden');
+    });
+    document.getElementById('closeLeaderboardBtn').addEventListener('click', () => {
+      document.getElementById('leaderboardModal').classList.add('hidden');
+    });
+
+    document.getElementById('decoderBtn').addEventListener('click', () => {
+      audio.playFlip();
+      document.getElementById('decoderModal').classList.remove('hidden');
+    });
+    document.getElementById('closeDecoderBtn').addEventListener('click', () => {
+      document.getElementById('decoderModal').classList.add('hidden');
+    });
+
+    /* INITIALIZATION */
+    function initApp() {
+      loadState();
+      updateHeaderHUD();
+      renderRoadmap();
+      initAdvCanvas();
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+    window.addEventListener('load', initApp);
+    initApp();
+  </script>
+</body>
+</html>
